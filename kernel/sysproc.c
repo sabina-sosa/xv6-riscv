@@ -6,6 +6,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "vm.h"
+#include "pstat.h"
 
 uint64
 sys_exit(void)
@@ -34,6 +35,16 @@ sys_wait(void)
   uint64 p;
   argaddr(0, &p);
   return kwait(p);
+}
+
+uint64
+sys_wait2(void)
+{
+  uint64 p;
+  uint64 ru;
+  argaddr(0, &p);
+  argaddr(1, &ru);
+  return kwait2(p, ru);
 }
 
 uint64
