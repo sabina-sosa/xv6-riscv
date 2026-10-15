@@ -759,3 +759,41 @@ procdump(void)
     printk("\n");
   }
 }
+
+// Fill in pstat array with info about all active processes.
+// Returns the number of active processes.
+int
+getprocs(uint64 addr)
+{
+  struct proc *p;
+  struct pstat ps[NPROC];
+  int nprocs = 0;
+  struct proc *curproc = myproc();
+
+  for (p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if (p->state != UNUSED && p->state != USED) {
+      ps[nprocs].pid = p->pid;
+      ps[nprocs].state = p->state;
+      ps[nprocs].size = p->sz;
+      safestrcpy(ps[nprocs].name, p->name, sizeof(ps[nprocs].name));
+
+      // Get parent pid safely
+      if (p->parent)
+        ps[nprocs].ppid = p->parent->pid;
+      else
+        ps[nprocs].ppid = 0;
+
+      nprocs++;
+    }
+    release(&p->lock);
+  }
+
+  // Copy the pstat array to user space
+  if (copyout(curproc->pagetable, curproc->sz, addr, (char *)ps,
+              nprocs * sizeof(struct pstat)) < 0)
+    return -1;
+
+  return nprocs;
+}
+
