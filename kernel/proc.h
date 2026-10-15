@@ -76,7 +76,10 @@ struct trapframe {
   /* 280 */ uint64 t6;
 };
 
+#ifndef _PROCSTATE_
+#define _PROCSTATE_
 enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+#endif
 
 // Per-process state
 struct proc {
