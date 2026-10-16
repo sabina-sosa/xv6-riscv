@@ -130,3 +130,24 @@ sys_getprocs(void)
   return getprocs(addr);
 }
 
+uint64
+sys_getpriority(void)
+{
+  return myproc()->priority;
+}
+
+uint64
+sys_setpriority(void)
+{
+  int priority;
+  argint(0, &priority);
+  if (priority < 0 || priority > 49)
+    return -1;
+  struct proc *p = myproc();
+  acquire(&p->lock);
+  p->priority = priority;
+  release(&p->lock);
+  return 0;
+}
+
+

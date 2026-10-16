@@ -147,6 +147,7 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
   p->cputime = 0;
+  p->priority = 0;
 
   return p;
 }
@@ -290,6 +291,7 @@ kfork(void)
   np->cwd = idup(p->cwd);
 
   safestrcpy(np->name, p->name, sizeof(p->name));
+  np->priority = p->priority;
 
   pid = np->pid;
 
@@ -783,6 +785,8 @@ getprocs(uint64 addr)
         ps[nprocs].ppid = p->parent->pid;
       else
         ps[nprocs].ppid = 0;
+
+      ps[nprocs].priority = p->priority;
 
       nprocs++;
     }

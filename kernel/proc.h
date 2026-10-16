@@ -105,4 +105,5 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   uint cputime;                // CPU time used (in ticks)
+  int priority;                // Process priority (0 to 49)
 };
