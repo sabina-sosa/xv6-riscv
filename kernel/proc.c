@@ -148,6 +148,7 @@ found:
   p->context.sp = p->kstack + PGSIZE;
   p->cputime = 0;
   p->priority = 0;
+  p->readytime = 0;
 
   return p;
 }
@@ -228,6 +229,7 @@ userinit(void)
 
   p->cwd = namei("/");
 
+  p->readytime = ticks;
   p->state = RUNNABLE;
 
   release(&p->lock);
@@ -302,6 +304,7 @@ kfork(void)
   release(&wait_lock);
 
   acquire(&np->lock);
+  np->readytime = ticks;
   np->state = RUNNABLE;
   release(&np->lock);
 
@@ -564,6 +567,7 @@ yield(void)
 {
   struct proc *p = myproc();
   acquire(&p->lock);
+  p->readytime = ticks;
   p->state = RUNNABLE;
   sched();
   release(&p->lock);
@@ -650,6 +654,7 @@ wakeup(void *chan)
       // If this waiting process has gotten so far as to actually
       // go to sleep, also set it back to RUNNING.
       if (p->state == SLEEPING) {
+        p->readytime = ticks;
         p->state = RUNNABLE;
       }
     }
@@ -671,6 +676,7 @@ kkill(int pid)
       p->killed = 1;
       if (p->state == SLEEPING) {
         // Wake process from sleep().
+        p->readytime = ticks;
         p->state = RUNNABLE;
       }
       release(&p->lock);
@@ -787,6 +793,7 @@ getprocs(uint64 addr)
         ps[nprocs].ppid = 0;
 
       ps[nprocs].priority = p->priority;
+      ps[nprocs].readytime = p->readytime;
 
       nprocs++;
     }

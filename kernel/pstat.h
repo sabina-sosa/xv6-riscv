@@ -16,6 +16,7 @@ struct pstat {
   uint64 size;          // Size of process memory (bytes)
   int ppid;             // Parent process ID
   int priority;         // Process priority
+  uint readytime;       // Time at which process became RUNNABLE
   char name[16];        // Process command name
 };
 
