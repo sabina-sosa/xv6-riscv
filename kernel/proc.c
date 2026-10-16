@@ -506,6 +506,7 @@ scheduler(void)
     intr_on();
     intr_off();
 
+#if SCHEDULER == SCHED_RR
     int found = 0;
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
@@ -531,6 +532,43 @@ scheduler(void)
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
     }
+#elif SCHEDULER == SCHED_PRIO
+    int found = 0;
+    struct proc *highest_p = 0;
+    int max_priority = -1;
+
+    // Find the RUNNABLE process with the highest priority
+    for (p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if (p->state == RUNNABLE) {
+        if (p->priority > max_priority) {
+          max_priority = p->priority;
+          highest_p = p;
+        }
+      }
+      release(&p->lock);
+    }
+
+    // Run the highest priority process
+    if (highest_p != 0) {
+      acquire(&highest_p->lock);
+      if (highest_p->state == RUNNABLE) {
+        highest_p->state = RUNNING;
+        c->proc = highest_p;
+        swtch(&c->context, &highest_p->context);
+
+        mycpu()->intena = 0;
+
+        c->proc = 0;
+        found = 1;
+      }
+      release(&highest_p->lock);
+    }
+
+    if (found == 0) {
+      asm volatile("wfi");
+    }
+#endif
   }
 }
 
