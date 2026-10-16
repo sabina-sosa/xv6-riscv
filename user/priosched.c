@@ -7,9 +7,9 @@ do_work(int id, int prio)
   setpriority(prio);
   printf("Process %d started (priority %d)\n", id, prio);
 
-  volatile double x = 0;
-  for (int i = 0; i < 5000000; i++) {
-    x += 1.0;
+  volatile int x = 0;
+  for (int i = 0; i < 50000000; i++) {
+    x += 1;
   }
 
   printf("Process %d FINISHED (priority %d)\n", id, prio);
