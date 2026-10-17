@@ -14,18 +14,18 @@ work(int id, int prio, int loop_count)
   close(pfd[0]);
 
   int start = uptime();
-  printf("Process %d (base priority %d) STARTED at tick %d\n", id, prio, start);
+  printf("Process %d (priority %d) STARTED at tick %d\n", id, prio, start);
 
   volatile int x = 0;
   for (int i = 0; i < loop_count; i++) {
     x += 1;
     if (i % (loop_count / 2) == 0 && i > 0) {
-      printf("Process %d (base priority %d) PROGRESS at tick %d\n", id, prio, uptime());
+      printf("Process %d (priority %d) running at tick %d\n", id, prio, uptime());
     }
   }
 
   int end = uptime();
-  printf("Process %d (base priority %d) FINISHED at tick %d (turnaround: %d ticks)\n",
+  printf("Process %d (priority %d) FINISHED at tick %d (turnaround: %d ticks)\n",
          id, prio, end, end - start);
   exit(0);
 }
@@ -40,21 +40,21 @@ main(int argc, char *argv[])
     exit(1);
   }
 
-  // Process 1: Low priority (base 5), medium work
+  // Process 1: Low priority (5), shorter work
   int pid1 = fork();
   if (pid1 == 0) {
     close(pfd[1]);
-    work(1, 5, 40000000);
+    work(1, 5, 150000000);
   }
 
-  // Process 2: High priority (base 30), long work
+  // Process 2: Higher priority (10), longer work
   int pid2 = fork();
   if (pid2 == 0) {
     close(pfd[1]);
-    work(2, 30, 80000000);
+    work(2, 10, 450000000);
   }
 
-  // Let both children get created and wait on pipe
+  // Let both children initialize
   pause(2);
 
   // Release both children simultaneously
