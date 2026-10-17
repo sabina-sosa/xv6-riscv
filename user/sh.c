@@ -168,6 +168,17 @@ main(void)
       cmd[strlen(cmd) - 1] = 0; // chop \n
       if (chdir(cmd + 3) < 0)
         fprintf(2, "cannot cd %s\n", cmd + 3);
+    } else if (memcmp(cmd, "getpriority", 11) == 0 &&
+               (cmd[11] == '\n' || cmd[11] == ' ' || cmd[11] == '\t' || cmd[11] == 0)) {
+      printf("%d\n", getpriority());
+    } else if (memcmp(cmd, "setpriority", 11) == 0 &&
+               (cmd[11] == ' ' || cmd[11] == '\t')) {
+      char *p = cmd + 11;
+      while (*p == ' ' || *p == '\t')
+        p++;
+      int prio = atoi(p);
+      if (setpriority(prio) < 0)
+        fprintf(2, "setpriority failed\n");
     } else {
       if (fork1() == 0)
         runcmd(parsecmd(cmd));
