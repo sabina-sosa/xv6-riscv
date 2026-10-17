@@ -159,6 +159,7 @@ UPROGS=\
 	$U/_pexec\
 	$U/_testpriority\
 	$U/_priosched\
+	$U/_agingtest\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)

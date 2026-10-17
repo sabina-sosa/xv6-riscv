@@ -532,7 +532,7 @@ scheduler(void)
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
     }
-#elif SCHEDULER == SCHED_PRIO
+#elif SCHEDULER == SCHED_PRIO || SCHEDULER == SCHED_AGING
     int found = 0;
     struct proc *highest_p = 0;
     int max_priority = -1;
@@ -541,8 +541,17 @@ scheduler(void)
     for (p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p->state == RUNNABLE) {
-        if (p->priority > max_priority) {
-          max_priority = p->priority;
+        int eff_priority = p->priority;
+#if SCHEDULER == SCHED_AGING
+        int age = ticks - p->readytime;
+        if (age < 0)
+          age = 0;
+        eff_priority = p->priority + age;
+        if (eff_priority > MAXEFFPRIORITY)
+          eff_priority = MAXEFFPRIORITY;
+#endif
+        if (eff_priority > max_priority) {
+          max_priority = eff_priority;
           highest_p = p;
         }
       }

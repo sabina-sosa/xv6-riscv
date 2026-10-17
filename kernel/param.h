@@ -14,7 +14,10 @@
 #define USERSTACK   1                 // user stack pages
 
 // Scheduling policies
-#define SCHED_RR    0                 // Round-robin scheduler
-#define SCHED_PRIO  1                 // Priority-based scheduler
-#define SCHEDULER   SCHED_PRIO        // Active scheduler
+#define SCHED_RR       0                 // Round-robin scheduler
+#define SCHED_PRIO     1                 // Priority-based scheduler (no aging)
+#define SCHED_AGING    2                 // Priority-based scheduler with aging
+#define SCHEDULER      SCHED_AGING       // Active scheduler
+
+#define MAXEFFPRIORITY 99                // Maximum effective priority
 
